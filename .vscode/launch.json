@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-N8nApplication<n8n>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.ponscio_studio.n8n.N8nApplication",
+            "projectName": "n8n",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
