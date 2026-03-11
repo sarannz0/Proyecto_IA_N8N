@@ -1,25 +1,26 @@
 package com.ponscio_studio.n8n.insfrastructure.persistence.entity;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
+
+import org.hibernate.annotations.JdbcTypeCode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
 
 @Entity
 @Table(name = "weather_queries")
 public class WeatherEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @JdbcTypeCode(java.sql.Types.VARCHAR)
+    @Column(name = "id", length = 36, columnDefinition = "CHAR(36)", updatable = false, nullable = false)
+    private UUID id;
 
     @Column(nullable = false)
-    private String city;
+    private String place;
     
     @Column(nullable = false)
     private double temperature;
@@ -27,7 +28,7 @@ public class WeatherEntity {
     @Column(nullable = false)
     private String weatherCondition;
     
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String recomendedClothes;
     
     @Column(nullable = false)
@@ -36,35 +37,35 @@ public class WeatherEntity {
     public WeatherEntity() {}
 
     public WeatherEntity(
-        int id,
-        String city,
+        UUID id,
+        String place,
         double temperature,
         String weatherCondition,
         String recomendedClothes,
         LocalDateTime createdAt
     ) {
         this.id = id;
-        this.city = city;
+        this.place = place;
         this.temperature = temperature;
         this.weatherCondition = weatherCondition;
         this.recomendedClothes = recomendedClothes;
         this.createdAt = createdAt;
     }
 
-    public int getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
-    public String getCity() {
-        return city;
+    public String getPlace() {
+        return place;
     }
 
-    public void setCity(String city) {
-        this.city = city;
+    public void setPlace(String place) {
+        this.place = place;
     }
 
     public double getTemperature() {

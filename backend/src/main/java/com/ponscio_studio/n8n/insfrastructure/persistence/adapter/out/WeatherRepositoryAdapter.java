@@ -2,6 +2,9 @@ package com.ponscio_studio.n8n.insfrastructure.persistence.adapter.out;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.stereotype.Component;
 
 import com.ponscio_studio.n8n.applicaction.mapper.WeatherMapper;
 import com.ponscio_studio.n8n.domain.model.Weather;
@@ -10,6 +13,7 @@ import com.ponscio_studio.n8n.insfrastructure.persistence.repository.WeatherJpaR
 
 import lombok.RequiredArgsConstructor;
 
+@Component
 @RequiredArgsConstructor
 public class WeatherRepositoryAdapter implements WeatherRepository {
 
@@ -22,7 +26,7 @@ public class WeatherRepositoryAdapter implements WeatherRepository {
     }
 
     @Override
-    public Optional<Weather> findById(int id) {
+    public Optional<Weather> findById(UUID id) {
         return repository.findById(id).map(weatherMapper::toDomain);
     }
 
@@ -32,7 +36,7 @@ public class WeatherRepositoryAdapter implements WeatherRepository {
     }
 
     @Override
-    public void deleteById(int id) {
+    public void deleteById(UUID id) {
         repository.deleteById(id);
     }
     

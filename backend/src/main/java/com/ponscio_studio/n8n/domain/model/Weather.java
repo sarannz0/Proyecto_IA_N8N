@@ -1,45 +1,47 @@
 package com.ponscio_studio.n8n.domain.model;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class Weather {
-    private int id;
-    private String city;
+    private UUID id;
+    private String place;
     private double temperature;
     private String weatherCondition;
-    private String recomendedClothes;
+    private Object recommendedClothes;
     private LocalDateTime createdAt;
 
-    
     public Weather() {}
     
     public Weather(
-        String city,
+        String place,
         double temperature,
         String weatherCondition,
-        String recomendedClothes
+        Object recommendedClothes,
+        LocalDateTime createdAt
     ) {
-        this.city = city;
+        this.id = UUID.randomUUID();
+        this.place = place;
         this.temperature = temperature;
         this.weatherCondition = weatherCondition;
-        this.recomendedClothes = recomendedClothes;
-        this.createdAt = LocalDateTime.now();
+        this.recommendedClothes = recommendedClothes;
+        this.createdAt = createdAt;
     }
     
-    public int getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
-    public String getCity() {
-        return city;
+    public String getpPlace() {
+        return place;
     }
 
-    public void setCity(String city) {
-        this.city = city;
+    public void setPlace(String place) {
+        this.place = place;
     }
 
     public double getTemperature() {
@@ -58,12 +60,12 @@ public class Weather {
         this.weatherCondition = weatherCondition;
     }
 
-    public String getRecomendedClothes() {
-        return recomendedClothes;
+    public Object getRecomendedClothes() {
+        return recommendedClothes;
     }
 
-    public void setRecomendedClothes(String recomendedClothes) {
-        this.recomendedClothes = recomendedClothes;
+    public void setRecomendedClothes(Object recomendedClothes) {
+        this.recommendedClothes = recomendedClothes;
     }
 
     public LocalDateTime getCreatedAt() {
