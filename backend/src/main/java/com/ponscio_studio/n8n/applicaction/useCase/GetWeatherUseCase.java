@@ -24,5 +24,4 @@ public class GetWeatherUseCase {
         
         return body;
     }
-
 }
