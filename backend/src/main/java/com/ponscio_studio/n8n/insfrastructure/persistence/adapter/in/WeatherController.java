@@ -7,6 +7,7 @@ import com.ponscio_studio.n8n.applicaction.dto.WeatherRequest;
 import com.ponscio_studio.n8n.applicaction.dto.WeatherRequestFromWorkFlow;
 import com.ponscio_studio.n8n.applicaction.useCase.GetWeatherUseCase;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class WeatherController {
     private final GetWeatherUseCase getWeatherUseCase;
 
     @PostMapping("/get")
-    public ResponseEntity<WeatherRequestFromWorkFlow> postMethodName(@RequestBody WeatherRequest request) {
+    public ResponseEntity<WeatherRequestFromWorkFlow> postMethodName(@Valid @RequestBody WeatherRequest request) {
         return ResponseEntity.ok(getWeatherUseCase.execute(request));
     }
     

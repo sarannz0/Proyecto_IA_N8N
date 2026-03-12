@@ -2,20 +2,20 @@ package com.ponscio_studio.n8n.applicaction.dto;
 
 import java.time.LocalDate;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record WeatherRequest(
     
-    @NotBlank(message = "Place es requerido")
+    @NotNull(message = "Place es requerido")
     String place,
 
-    @NotBlank(message = "Latitud es requerido")
+    @NotNull(message = "Latitud es requerido")
     String latitud,
 
-    @NotBlank(message = "Longitud es requerido")
+    @NotNull(message = "Longitud es requerido")
     String longitud,
 
-    @NotBlank(message = "Date es requerido")
+    @NotNull(message = "Date es requerido")
     LocalDate date
 
 ) {}

@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import com.ponscio_studio.n8n.applicaction.customExceptions.WorkFlowDontStartsException;
 import com.ponscio_studio.n8n.applicaction.dto.WeatherRequest;
 import com.ponscio_studio.n8n.applicaction.dto.WeatherRequestFromWorkFlow;
 
@@ -20,11 +21,9 @@ public class WorkFlow {
         try {
             ResponseEntity<WeatherRequestFromWorkFlow> response = restTemplate.postForEntity(URL, request, WeatherRequestFromWorkFlow.class); 
             return ResponseEntity.ok(response.getBody());
-
         }
         catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw new RuntimeException("No se pudo conectar con N8N");
+            throw new WorkFlowDontStartsException("No se pudo Ejecutar N8N - " + e.getMessage());
         }
 
     }

@@ -6,7 +6,7 @@ import java.util.UUID;
 public class Weather {
     private UUID id;
     private String place;
-    private double temperature;
+    private String temperature;
     private String weatherCondition;
     private Object recommendedClothes;
     private LocalDateTime createdAt;
@@ -15,7 +15,7 @@ public class Weather {
     
     public Weather(
         String place,
-        double temperature,
+        String temperature,
         String weatherCondition,
         Object recommendedClothes,
         LocalDateTime createdAt
@@ -44,11 +44,11 @@ public class Weather {
         this.place = place;
     }
 
-    public double getTemperature() {
+    public String getTemperature() {
         return temperature;
     }
 
-    public void setTemperature(double temperature) {
+    public void setTemperature(String temperature) {
         this.temperature = temperature;
     }
 

@@ -1,6 +1,5 @@
 package com.ponscio_studio.n8n.applicaction.useCase;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Component;

@@ -21,6 +21,7 @@ public class GetWeatherUseCase {
 
         if (body == null) throw new RuntimeException("N8N no retorno nadota");
         saveWeatherUseCase.execute(body);
+        
         return body;
     }
 

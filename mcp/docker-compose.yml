@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  # ─── MCP Weather Server ──────────────────────────────────
+  weather-mcp:
+    build: .
+    container_name: weather-mcp
+    ports:
+      - "3000:3000"       # Expone el puerto SSE
+    environment:
+      - PORT=3000
+    restart: unless-stopped
+    networks:
+      - n8n-network
+
+  # ─── n8n (si aún no lo tienes corriendo) ─────────────────
+  # Comenta este bloque si ya tienes n8n corriendo por separado
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=admin123
+      - WEBHOOK_URL=http://localhost:5678
+    volumes:
+      - n8n_data:/home/node/.n8n
+    restart: unless-stopped
+    networks:
+      - n8n-network
+    depends_on:
+      - weather-mcp
+
+networks:
+  n8n-network:
+    driver: bridge
+
+volumes:
+  n8n_data:

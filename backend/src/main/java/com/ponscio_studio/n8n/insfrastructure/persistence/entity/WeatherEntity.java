@@ -23,7 +23,7 @@ public class WeatherEntity {
     private String place;
     
     @Column(nullable = false)
-    private double temperature;
+    private String temperature;
     
     @Column(nullable = false)
     private String weatherCondition;
@@ -39,7 +39,7 @@ public class WeatherEntity {
     public WeatherEntity(
         UUID id,
         String place,
-        double temperature,
+        String temperature,
         String weatherCondition,
         String recomendedClothes,
         LocalDateTime createdAt
@@ -68,11 +68,11 @@ public class WeatherEntity {
         this.place = place;
     }
 
-    public double getTemperature() {
+    public String getTemperature() {
         return temperature;
     }
 
-    public void setTemperature(double temperature) {
+    public void setTemperature(String temperature) {
         this.temperature = temperature;
     }
 
