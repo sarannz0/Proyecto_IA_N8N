@@ -17,6 +17,9 @@ public record WeatherRequestFromWorkFlow(
     @NotNull(message = "Recomended Clothes es requerido")
     String recommendedClothes,
 
+    @NotNull(message = "Wind Speed es requerido")
+    String windSpeed,
+
     @NotNull(message = "Date es requerido")
     String createdAt
     

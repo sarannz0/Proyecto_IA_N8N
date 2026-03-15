@@ -1,0 +1,259 @@
+{
+  "name": "WeatherApp/n8n",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "335be737-5baa-48db-b441-2a26aba8c98b",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -288,
+        432
+      ],
+      "id": "1e4fd981-151c-402b-91eb-ac20f999a197",
+      "name": "Webhook",
+      "webhookId": "335be737-5baa-48db-b441-2a26aba8c98b"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1536,
+        432
+      ],
+      "id": "f055362f-8986-41d5-8e58-6b0ee0beb8be",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Eres asistente de clima. Datos posicionales (sin unidades, en orden):\nT°C,AT°C,H%,D,Rmm,SHmm,SNcm,CC%,WSkm/h,WGkm/h\n\nResponde en español con:\n1.VESTIMENTA: qué ponerse, recomiendame una vestimenta adecuada basado en los datos metereologicos del clima\n\nNota: Solo dame la informacion sin ningun tipo de edicion Mark Down\n",
+              "role": "model"
+            },
+            {
+              "content": "={{ $json.toon }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        608,
+        432
+      ],
+      "id": "dd7a72a7-fbb3-47fd-b4d6-216210af73ae",
+      "name": "Message a model",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "6uJgkrddLbQPRJIm",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Iteramos sobre todos los items que lleguen del nodo anterior\nreturn $input.all().map(item => {\n  const data = item.json;\n  \n  // Extraemos las nuevas variables (ajustadas a tu nuevo JSON)\n  const f    = data.fecha;\n  const tMax = data.temperature_2m_max;\n  const tMin = data.temperature_2m_min;\n  const at   = data.apparent_temperature_max; // Tomamos la sensación térmica máxima\n  const r    = data.rain_sum;\n  const sh   = data.showers_sum;\n  const sn   = data.snowfall_sum;\n  const p    = data.precipitation_sum; // Añadí precipitación total\n  const ws   = data.wind_speed_10m_max;\n  const wg   = data.wind_gusts_10m_max;\n\n  // Construimos el string 'toon'\n  // Nota: Quité H (humedad), CC (nubes) y D porque no vienen en tu nuevo JSON.\n  // Añadí F (fecha), P (precipitación) y uní Tmax/Tmin.\n  return {\n    json: {\n      toon: `[F:${f}|T:${tMax}/${tMin}|AT:${at}|P:${p}|R:${r}|SH:${sh}|SN:${sn}|WS:${ws}|WG:${wg}]`\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        432
+      ],
+      "id": "b1ec4a89-210b-462a-8357-fd607e251e17",
+      "name": "Filtrar y juntar datos hora/temp formato TOON"
+    },
+    {
+      "parameters": {
+        "jsCode": "const bogotaTime = new Date().toLocaleString(\"en-US\", {\n  timeZone: \"America/Bogota\",\n  hour12: false\n});\n\nreturn [{\n  json: {\n    place: $('Webhook').first().json.body.place,\n    temperature:$('Filtrar datos por fecha').first().json.temperature_2m_min + \"/\" + $('Filtrar datos por fecha').first().json.temperature_2m_max,\n    weatherCondition:$input.first().json.content.parts[0].text,\n    recommendedClothes:$('Message a model').first().json.content.parts[0].text ,\n    windSpeed: $('Filtrar datos por fecha').first().json.wind_speed_10m_max,\n    createdAt: bogotaTime\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1312,
+        432
+      ],
+      "id": "e0cbc035-146c-4014-83ef-afa8af0ee528",
+      "name": "formatear a JSON"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.open-meteo.com/v1/forecast?latitude={{ $json.body.latitud }}&longitude={{ $json.body.longitud }}&daily=temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,rain_sum,showers_sum,snowfall_sum,precipitation_sum,wind_speed_10m_max,wind_gusts_10m_max&past_days=7\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -64,
+        432
+      ],
+      "id": "271cefac-e92e-47df-a97a-42bcd932cb1f",
+      "name": "DatosClima"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Retorna únicamente el ENUM que mas coincida con los datos, para el clima promedio.\n{{ $('Filtrar y juntar datos hora/temp formato TOON').item.json.toon }}\n\n  SUNNY = \"SUNNY\",           \n  CLOUDY = \"CLOUDY\",         \n  PARTLY_CLOUDY = \"PARTLY_CLOUDY\", \n  RAINY = \"RAINY\",          \n  STORMY = \"STORMY\",        \n  SNOWY = \"SNOWY\",           \n  FOGGY = \"FOGGY\",          \n  WINDY = \"WINDY\",           \n  HAILING = \"HAILING\",         \n  FREEZING = \"FREEZING\",    \n  DRIZZLING = \"DRIZZLING\", \n  CLEAR = \"CLEAR\",           \n  HUMID = \"HUMID\",           \n  DRY = \"DRY\",               \n  THUNDER = \"THUNDER\"       ",
+              "role": "model"
+            },
+            {
+              "content": "={{ $('Filtrar y juntar datos hora/temp formato TOON').item.json.toon }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        432
+      ],
+      "id": "5bb1f688-de6c-4ec3-832a-d71e41998260",
+      "name": "Message a model1",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "6uJgkrddLbQPRJIm",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Tomamos los datos del nodo anterior\nconst data = $input.first().json;\n\n// 2. Accedemos al objeto 'daily' que se ve en tu imagen\nconst daily = data.daily;\n\n// Validamos que la información exista para evitar errores\nif (!daily || !daily.time) {\n  return [{ json: { error: \"No se encontraron los datos de 'daily' o 'time'.\" } }];\n}\n\nconst resultados = [];\nconst cantidadDias = daily.time.length;\n\n// 3. Emparejamos los datos usando el índice 'i'\nfor (let i = 0; i < cantidadDias; i++) {\n  resultados.push({\n    json: {\n      // Usamos el índice [i] para extraer el valor correspondiente de cada lista\n      fecha: daily.time[i],\n      temperature_2m_max: daily.temperature_2m_max ? daily.temperature_2m_max[i] : null,\n      temperature_2m_min: daily.temperature_2m_min ? daily.temperature_2m_min[i] : null,\n      apparent_temperature_max: daily.apparent_temperature_max ? daily.apparent_temperature_max[i] : null,\n      apparent_temperature_min: daily.apparent_temperature_min ? daily.apparent_temperature_min[i] : null,\n      rain_sum: daily.rain_sum ? daily.rain_sum[i] : null,\n      showers_sum: daily.showers_sum ? daily.showers_sum[i] : null,\n      snowfall_sum: daily.snowfall_sum ? daily.snowfall_sum[i] : null,\n      precipitation_sum: daily.precipitation_sum ? daily.precipitation_sum[i] : null,\n      wind_speed_10m_max: daily.wind_speed_10m_max ? daily.wind_speed_10m_max[i] : null,\n      wind_gusts_10m_max: daily.wind_gusts_10m_max ? daily.wind_gusts_10m_max[i] : null\n    }\n  });\n}\n\nlet item = 0;\n\nfor (let i = 0; i < resultados.length; i++) {\n  if (resultados[i].json.fecha == $('Webhook').first().json.body.date) {\n    item = i;\n  }\n}\n\nreturn resultados[item];\n\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        432
+      ],
+      "id": "602fef2d-51ea-44b2-b32f-1c1d1ad0b327",
+      "name": "Filtrar datos por fecha"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "DatosClima",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar y juntar datos hora/temp formato TOON": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "formatear a JSON": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DatosClima": {
+      "main": [
+        [
+          {
+            "node": "Filtrar datos por fecha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "formatear a JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar datos por fecha": {
+      "main": [
+        [
+          {
+            "node": "Filtrar y juntar datos hora/temp formato TOON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f047993c-64b8-44c6-ac11-77f40bc6d368",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9d3c31dfd5798f56e88de5519682377d230246642fac51cf8e72521d570606c1"
+  },
+  "id": "wEMqFbh9Bwb94Anu",
+  "tags": []
+}

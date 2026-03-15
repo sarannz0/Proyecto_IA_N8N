@@ -18,10 +18,10 @@ public class GetWeatherUseCase {
     public WeatherRequestFromWorkFlow execute(WeatherRequest request) {
         ResponseEntity<WeatherRequestFromWorkFlow> response = workFlow.execute(request);
         WeatherRequestFromWorkFlow body = (WeatherRequestFromWorkFlow) response.getBody(); 
-
+        
         if (body == null) throw new RuntimeException("N8N no retorno nadota");
         saveWeatherUseCase.execute(body);
-        
+
         return body;
     }
 }

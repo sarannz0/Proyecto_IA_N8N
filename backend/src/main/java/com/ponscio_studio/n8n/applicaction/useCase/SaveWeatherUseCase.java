@@ -22,7 +22,7 @@ public class SaveWeatherUseCase {
             request.place(),
             request.temperature(),
             request.weatherCondition(),
-            request.recommendedClothes(),
+            request.recommendedClothes().replace("*", ""),
             LocalDateTime.now()
         );
 

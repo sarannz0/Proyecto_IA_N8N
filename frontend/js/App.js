@@ -2,55 +2,64 @@ const DEFAULT_LAT = '7.1255169';
 const DEFAULT_LON = '-73.1182624';
 
 document.addEventListener('DOMContentLoaded', () => {
-    window.cargarDatosDelClima(DEFAULT_LAT, DEFAULT_LON);
 });
 
-window.cargarDatosDelClima = async (lat, lon) => {
+window.cargarDatosDelClima = async (lat, lon, place, date) => {
     const latValue = lat ?? DEFAULT_LAT;
     const lonValue = lon ?? DEFAULT_LON;
 
-    const baseUrl = 'http://localhost:8080/weather/get';
-    let url = `${baseUrl}?PONER_AQUI_PARAM_LAT=${encodeURIComponent(latValue)}&PONER_AQUI_PARAM_LON=${encodeURIComponent(lonValue)}`;
+    const baseUrl = 'http://localhost:6969/weather/get';
 
     const selectedCity = window.__selectedCity;
     const selectedCountry = window.__selectedCountry;
-    if (selectedCity) {
-        url += `&PONER_AQUI_PARAM_CITY=${encodeURIComponent(selectedCity)}`;
-    }
-    if (selectedCountry) {
-        url += `&PONER_AQUI_PARAM_COUNTRY=${encodeURIComponent(selectedCountry)}`;
-    }
 
     try {
         console.log('Enviando a backend:', {
             lat: latValue,
             lon: lonValue,
-            city: selectedCity,
+            city: place,
             country: selectedCountry,
         });
 
-        const response = await fetch(url, { method: 'GET' });
+        const response = await fetch(baseUrl, { 
+        method: 'POST',
+        headers: {
+                'Content-Type': 'application/json'
+            },
+        body: JSON.stringify({
+            place: place,
+            latitud: latValue,
+            longitud: lonValue,
+            date: date
+        })
+        });
 
         if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
+            // Intentamos leer el mensaje de error que envió el backend
+            const errorData = await response.json().catch(() => ({})); 
+            const mensaje = errorData.message || `Error desconocido (${response.status})`;
+            
+            throw new Error(mensaje);
         }
 
         const data = await response.json();
         console.log(data);
 
+
+
         const tempPrincipal = document.getElementById('temp-principal');
         if (tempPrincipal) {
-            tempPrincipal.innerHTML = data.PONER_AQUI_LLAVE_TEMPERATURA;
+            tempPrincipal.innerHTML = `${data.temperature } °C`;
         }
 
         const tempSensacion = document.getElementById('temp-sensacion');
         if (tempSensacion) {
-            tempSensacion.innerHTML = data.PONER_AQUI_LLAVE_SENSACION;
+            tempSensacion.innerHTML = data.weatherCondition;
         }
 
-        const probLluvia = document.getElementById('prob-lluvia');
-        if (probLluvia) {
-            probLluvia.innerHTML = data.PONER_AQUI_LLAVE_LLUVIA;
+        const windSpeed = document.getElementById('wind-speed');
+        if (windSpeed) {
+            windSpeed.innerHTML = `${data.windSpeed} Km/h`;
         }
 
         const horaActual = document.getElementById('hora-actual');
@@ -60,14 +69,10 @@ window.cargarDatosDelClima = async (lat, lon) => {
 
         const recomendacionTexto = document.getElementById('recomendacion-texto');
         if (recomendacionTexto) {
-            recomendacionTexto.innerHTML = data.PONER_AQUI_LLAVE_RECOMENDACION;
-        }
-
-        const forecastLista = document.getElementById('forecast-lista');
-        if (forecastLista) {
-            forecastLista.innerHTML = data.PONER_AQUI_LLAVE_PRONOSTICO_7_DIAS;
+            recomendacionTexto.innerHTML = data.recommendedClothes.replace("VESTIMENTA: ", "");
         }
     } catch (error) {
+
         console.error('Fallo la conexion con el backend:', error);
     }
 };

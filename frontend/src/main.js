@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchResults = document.getElementById('searchResults');
     const modalContainer = searchModal.querySelector('div');
 
+    const formDate = document.getElementById('form-date');
+    const errorBox = document.getElementById('error-box');
+
     const GEOCODING_API_URL = 'https://geocoding-api.open-meteo.com/v1/search';
     const GEOCODING_API_COUNT = 20;
     const GEOCODING_API_LANGUAGE = 'es';
@@ -67,7 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 closeModal();
 
                 if (typeof window.cargarDatosDelClima === 'function') {
-                    window.cargarDatosDelClima(latValue, lonValue);
+                    let place = `${cityLabel}, ${countryLabel}`;
+                    window.cargarDatosDelClima(latValue, lonValue, place, formDate.value);
                 }
             });
 
@@ -94,6 +98,12 @@ document.addEventListener('DOMContentLoaded', () => {
             `&language=${encodeURIComponent(GEOCODING_API_LANGUAGE)}&format=json`;
 
         try {
+            errorBox.textContent = "";
+            if (!formDate.value) {
+                errorBox.textContent = "Primero debes elegir una fecha!";
+                closeModal();
+                return;
+            }
             const response = await fetch(url, { method: 'GET' });
 
             if (!response.ok) {
@@ -101,6 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const data = await response.json();
+            
             console.log('Sugerencias API:', data);
 
             if (requestId !== activeRequestId) return;
@@ -121,6 +132,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const debouncedFetchSuggestions = debounce(fetchSuggestions, 350);
 
     function openModal() {
+        if (!formDate.value) {
+            errorBox.textContent = "Primero debes elegir una fecha!";
+            closeModal();
+            return;
+        }
+
+
         searchModal.classList.remove('hidden');
         // Small delay to allow display block to apply before animating opacity
         requestAnimationFrame(() => {
